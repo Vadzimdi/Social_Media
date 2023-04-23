@@ -1,0 +1,31 @@
+{% extends "web/layout.html" %}
+
+{% block body %}
+
+    <h2>Register</h2>
+
+    {% if message %}
+        <div style="color:red">{{ message }}</div>
+        <br>
+    {% endif %} 
+
+    <form action="{% url 'register' %}" method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <input type="text" autofocus class="form-control"  placeholder="Username" name="username">
+          </div>
+          <div class="mb-3">
+            <input type="email" class="form-control"  placeholder="Email adress" name="email">
+          </div>
+          <div class="mb-3">
+            <input type="password" class="form-control"  placeholder="Password" name="password">
+          </div>
+          <div class="mb-3">
+            <input type="password" class="form-control"  placeholder="Confirmation" name="confirm_password">
+          </div>
+          <input class="btn btn-primary" type="submit" value="Register">
+    </form>
+    <br>
+    Already have an account? <a href="{% url 'login' %}">Login Here.</a>
+
+{% endblock %}    
