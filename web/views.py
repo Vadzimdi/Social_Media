@@ -8,8 +8,22 @@ from .models import *
 
 
 def index(request):
-    return render(request, "web/index.html")
+    allposts = Post.objects.all().order_by('id').reverse()
+    current_user = request.user
 
+    return render(request, "web/index.html", {
+                "allposts": allposts,
+                "current_user": current_user
+            })
+
+
+def newpost(request):
+    if request.method == "POST":
+        user = request.user
+        content = request.POST['content']
+        newpost = Post(user=user, content=content)
+        newpost.save()
+        return HttpResponseRedirect(reverse('index'))
 
 def login_view(request):
     if request.method == 'POST':
