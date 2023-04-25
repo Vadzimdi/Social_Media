@@ -17,6 +17,18 @@ def index(request):
             })
 
 
+def userprofile(request):
+    current_user = request.user
+    allposts = Post.objects.filter(user=current_user)
+
+
+
+    return render(request, "web/userprofile.html", {
+                "allposts": allposts,
+                "current_user": current_user
+            })
+
+
 def newpost(request):
     if request.method == "POST":
         user = request.user

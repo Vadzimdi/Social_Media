@@ -3,20 +3,8 @@
 {% load humanize %}
 
 {% block body %}
-    <h2>All Posts</h2>
-    {% if user.is_authenticated %}
-        <br>
-        <h4>New Post</h4>
-        <form action="{% url 'newpost' %}" method="post">
-            {% csrf_token %}
-            <div class="mb-3">
-                <textarea class="form-control" rows="3" name="content"></textarea>
-                <button style="margin-top: 10px;" type="submit" class="btn btn-primary mb-3">Post</button>
-            </div>
-        </form>
-    {% else %}   
-        <br> 
-    {% endif %}
+    <h2>{{ current_user }}'s Profile</h2>
+   <br>
     {% for post in allposts %}
         <div class="card" style="max-width: 50rem;">
             <div style="background-color:lightgray;" class="card-header">
