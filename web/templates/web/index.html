@@ -20,7 +20,7 @@
     {% for post in allposts %}
         <div class="card" style="max-width: 50rem;">
             <div style="background-color:lightgray;" class="card-header">
-                <strong>Post by: {{ post.user }}</strong> 
+                <strong>Post by: <a style="color: black;" href="{% url 'profileforuserid' post.user.id %}">{{ post.user }}</a></strong> 
             </div>
             <div class="card-body">
                 <h6 class="card-title">{{ post.content }}</h6>

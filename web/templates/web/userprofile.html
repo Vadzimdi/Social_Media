@@ -5,6 +5,23 @@
 {% block body %}
     <h2>{{ current_user }}'s Profile</h2>
    <br>
+    {% if follow == True %}
+        <form action="{% url 'unfollow' current_user.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Unfollow</button>
+        </form>   
+       
+    {% elif follow == False %}
+        <form action="{% url 'follow' current_user.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Follow</button>
+        </form>    
+        {% endif %}    
+        
+
+
+
+   <br>
     {% for post in allposts %}
         <div class="card" style="max-width: 50rem;">
             <div style="background-color:lightgray;" class="card-header">

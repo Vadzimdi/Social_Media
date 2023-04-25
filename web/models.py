@@ -23,4 +23,9 @@ class Comments(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE, blank=True, null=True, related_name="user_comment")
 
 
-    
+class Follow(models.Model):
+    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_who_is_following')
+    followed = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_who_is_followed')
+
+    def __str__(self):
+        return f'{self.follower} following {self.followed}'

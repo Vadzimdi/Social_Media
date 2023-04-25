@@ -28,6 +28,56 @@ def userprofile(request):
                 "current_user": current_user
             })
 
+def profileforuserid(request, post_user_id):
+    current_user_id = request.user.id
+    current_user1 = User.objects.get(id=request.user.id)
+    if current_user_id == post_user_id:
+        return HttpResponseRedirect(reverse('userprofile'))
+    else:
+        post_user = User.objects.get(id=post_user_id)
+        allposts = Post.objects.filter(user=post_user)
+        allfollow = Follow.objects.all()
+        current_following_postuser = False
+        for item in allfollow:
+            if item.follower == current_user1 and item.followed == post_user:
+                current_following_postuser = True
+        
+        return render(request, "web/userprofile.html", {
+                "allposts": allposts,
+                "current_user": post_user,
+                "follow": current_following_postuser
+            })
+
+
+
+def follow(request, post_user_id):
+    if request.method == "POST":
+        current_user = User.objects.get(id=request.user.id)
+        post_user = User.objects.get(id=post_user_id)
+        allposts = Post.objects.filter(user=post_user)
+        new_follower = Follow(follower=current_user, followed=post_user)
+        new_follower.save()
+        return render(request, "web/userprofile.html", {
+                "allposts": allposts,
+                "current_user": post_user,
+                "follow": True
+            })
+
+
+def unfollow(request, post_user_id):
+    if request.method == "POST":
+        current_user = User.objects.get(id=request.user.id)
+        post_user = User.objects.get(id=post_user_id)
+        allposts = Post.objects.filter(user=post_user)
+        get_what_to_unfollow = Follow.objects.get(follower=current_user, followed=post_user)
+        get_what_to_unfollow.delete()
+        return render(request, "web/userprofile.html", {
+                "allposts": allposts,
+                "current_user": post_user,
+                "follow": False
+            })
+
+
 
 def newpost(request):
     if request.method == "POST":
