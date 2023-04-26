@@ -29,6 +29,7 @@
             </div>
             <div class="card-body">
                 <h6 class="card-title">{{ post.content }}</h6>
+                <a href="#"><i class="fa-regular fa-heart" style="color: #ff2600;"></i></a> {{ post.number_of_likes }}
                 {% if current_user == post.user %}
                 <!-- Button trigger modal -->
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
@@ -56,7 +57,7 @@
                 {% endif %}   
                 <br>
                 <br>
-                <a href="#"><i class="fa-regular fa-heart" style="color: #ff2600;"></i></a> {{ post.number_of_likes }}
+                
             </div>
             <div class="card-footer">
                 <small>{{ post.creation_date|naturaltime }}</small>

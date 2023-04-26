@@ -19,7 +19,7 @@ def index(request):
 
 def userprofile(request):
     current_user = request.user
-    allposts = Post.objects.filter(user=current_user)
+    allposts = Post.objects.filter(user=current_user).order_by('id').reverse()
 
 
 
@@ -35,7 +35,7 @@ def profileforuserid(request, post_user_id):
         return HttpResponseRedirect(reverse('userprofile'))
     else:
         post_user = User.objects.get(id=post_user_id)
-        allposts = Post.objects.filter(user=post_user)
+        allposts = Post.objects.filter(user=post_user).order_by('id').reverse()
         allfollow = Follow.objects.all()
         current_following_postuser = False
         for item in allfollow:
@@ -54,7 +54,7 @@ def follow(request, post_user_id):
     if request.method == "POST":
         current_user = User.objects.get(id=request.user.id)
         post_user = User.objects.get(id=post_user_id)
-        allposts = Post.objects.filter(user=post_user)
+        allposts = Post.objects.filter(user=post_user).order_by('id').reverse()
         new_follower = Follow(follower=current_user, followed=post_user)
         new_follower.save()
         return render(request, "web/userprofile.html", {
@@ -68,7 +68,7 @@ def unfollow(request, post_user_id):
     if request.method == "POST":
         current_user = User.objects.get(id=request.user.id)
         post_user = User.objects.get(id=post_user_id)
-        allposts = Post.objects.filter(user=post_user)
+        allposts = Post.objects.filter(user=post_user).order_by('id').reverse()
         get_what_to_unfollow = Follow.objects.get(follower=current_user, followed=post_user)
         get_what_to_unfollow.delete()
         return render(request, "web/userprofile.html", {
@@ -76,6 +76,28 @@ def unfollow(request, post_user_id):
                 "current_user": post_user,
                 "follow": False
             })
+
+def myfollowing(request):
+    current_user = request.user
+    followingpeople = Follow.objects.filter(follower=current_user)
+    allposts = Post.objects.all().order_by('id').reverse()
+
+    followingpost = []
+
+    for post in allposts:
+        print(1)
+        print(post)
+        print(1)
+        for person in followingpeople:
+            print(person)
+            if person.followed == post.user:
+                followingpost.append(post)
+                
+
+    return render(request, "web/myfollowing.html", {
+            "allposts": followingpost,
+            "current_user": current_user
+        })
 
 
 
