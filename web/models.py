@@ -3,6 +3,9 @@ from django.db import models
 
 
 class User(AbstractUser):
+    number_of_followers = models.IntegerField(default=0)
+    number_of_following = models.IntegerField(default=0)
+
     def __str__(self):
         return f"{self.username}"
 

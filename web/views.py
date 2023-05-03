@@ -3,6 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.db import IntegrityError
+from django.core.paginator import Paginator
 
 from .models import *
 
@@ -11,41 +12,69 @@ def index(request):
     allposts = Post.objects.all().order_by('id').reverse()
     current_user = request.user
 
+    # Paginator
+    paginator = Paginator(allposts, 10)
+    page_namber = request.GET.get('page')
+    page_obj = paginator.get_page(page_namber)
+
     return render(request, "web/index.html", {
-                "allposts": allposts,
+                "allposts": page_obj,
                 "current_user": current_user
             })
 
 
 def userprofile(request):
-    current_user = request.user
+    current_user = User.objects.get(id=request.user.id)
     allposts = Post.objects.filter(user=current_user).order_by('id').reverse()
+    user_followers = current_user.number_of_followers
+    user_following = current_user.number_of_following
+
+    # Paginator
+    paginator = Paginator(allposts, 10)
+    page_namber = request.GET.get('page')
+    page_obj = paginator.get_page(page_namber)
+
 
 
 
     return render(request, "web/userprofile.html", {
-                "allposts": allposts,
-                "current_user": current_user
+                "allposts": page_obj,
+                "current_user": current_user,
+                "user_followers": user_followers,
+                "user_following": user_following
             })
 
 def profileforuserid(request, post_user_id):
     current_user_id = request.user.id
+    not_show_edit = True
     current_user1 = User.objects.get(id=request.user.id)
     if current_user_id == post_user_id:
         return HttpResponseRedirect(reverse('userprofile'))
     else:
         post_user = User.objects.get(id=post_user_id)
+
+        user_followers = post_user.number_of_followers
+        user_following = post_user.number_of_following 
+
         allposts = Post.objects.filter(user=post_user).order_by('id').reverse()
         allfollow = Follow.objects.all()
         current_following_postuser = False
         for item in allfollow:
             if item.follower == current_user1 and item.followed == post_user:
                 current_following_postuser = True
+
+        # Paginator
+        paginator = Paginator(allposts, 10)
+        page_namber = request.GET.get('page')
+        page_obj = paginator.get_page(page_namber)        
         
         return render(request, "web/userprofile.html", {
-                "allposts": allposts,
+                "allposts": page_obj,
                 "current_user": post_user,
-                "follow": current_following_postuser
+                "follow": current_following_postuser,
+                "not_show_edit": not_show_edit,
+                "user_followers": user_followers,
+                "user_following": user_following
             })
 
 
@@ -57,10 +86,25 @@ def follow(request, post_user_id):
         allposts = Post.objects.filter(user=post_user).order_by('id').reverse()
         new_follower = Follow(follower=current_user, followed=post_user)
         new_follower.save()
+        current_user.number_of_following +=1
+        current_user.save()
+        post_user.number_of_followers +=1
+        post_user.save()
+
+        # Paginator
+        paginator = Paginator(allposts, 10)
+        page_namber = request.GET.get('page')
+        page_obj = paginator.get_page(page_namber)
+
+        user_followers = post_user.number_of_followers
+        user_following = post_user.number_of_following 
+
         return render(request, "web/userprofile.html", {
-                "allposts": allposts,
+                "allposts": page_obj,
                 "current_user": post_user,
-                "follow": True
+                "follow": True,
+                "user_followers": user_followers,
+                "user_following": user_following
             })
 
 
@@ -71,10 +115,25 @@ def unfollow(request, post_user_id):
         allposts = Post.objects.filter(user=post_user).order_by('id').reverse()
         get_what_to_unfollow = Follow.objects.get(follower=current_user, followed=post_user)
         get_what_to_unfollow.delete()
+        current_user.number_of_following -=1
+        current_user.save()
+        post_user.number_of_followers -=1
+        post_user.save()
+
+        # Paginator
+        paginator = Paginator(allposts, 10)
+        page_namber = request.GET.get('page')
+        page_obj = paginator.get_page(page_namber)
+
+        user_followers = post_user.number_of_followers
+        user_following = post_user.number_of_following 
+
         return render(request, "web/userprofile.html", {
-                "allposts": allposts,
+                "allposts": page_obj,
                 "current_user": post_user,
-                "follow": False
+                "follow": False,
+                "user_followers": user_followers,
+                "user_following": user_following
             })
 
 def myfollowing(request):
@@ -85,17 +144,17 @@ def myfollowing(request):
     followingpost = []
 
     for post in allposts:
-        print(1)
-        print(post)
-        print(1)
         for person in followingpeople:
-            print(person)
             if person.followed == post.user:
                 followingpost.append(post)
-                
+
+    # Paginator
+    paginator = Paginator(followingpost, 10)
+    page_namber = request.GET.get('page')
+    page_obj = paginator.get_page(page_namber)            
 
     return render(request, "web/myfollowing.html", {
-            "allposts": followingpost,
+            "allposts": page_obj,
             "current_user": current_user
         })
 

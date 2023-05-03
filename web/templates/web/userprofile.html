@@ -5,6 +5,8 @@
 {% block body %}
     <h2>{{ current_user }}'s Profile</h2>
    <br>
+   <h4>Followers: {{ user_followers }}</h4>
+   <h4>Following: {{ user_following }}</h4>
     {% if follow == True %}
         <form action="{% url 'unfollow' current_user.id %}" method="post">
             {% csrf_token %}
@@ -30,7 +32,7 @@
             <div class="card-body">
                 <h6 class="card-title">{{ post.content }}</h6>
                 <a href="#"><i class="fa-regular fa-heart" style="color: #ff2600;"></i></a> {{ post.number_of_likes }}
-                {% if current_user == post.user %}
+                {% if current_user == post.user and not_show_edit == None %}
                 <!-- Button trigger modal -->
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
                         Edit
@@ -65,5 +67,14 @@
         </div>
         <br>
     {% endfor %}
-      
+    <nav aria-label="Page navigation example">
+        <ul class="pagination d-flex justify-content-center">
+            {% if allposts.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ allposts.previous_page_number }}">Previous</a></li>
+            {% endif %}    
+            {% if allposts.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ allposts.next_page_number }}">Next</a></li>
+            {% endif %}    
+        </ul>
+      </nav> 
 {% endblock %}
