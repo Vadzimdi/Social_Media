@@ -5,6 +5,10 @@ from django.urls import reverse
 from django.db import IntegrityError
 from django.core.paginator import Paginator
 
+import json
+
+from django.http import JsonResponse
+
 from .models import *
 
 
@@ -22,6 +26,15 @@ def index(request):
                 "current_user": current_user
             })
 
+def post_edit(request, post_id):
+    if request.method == "POST":
+        post_body = json.loads(request.body)
+        post = Post.objects.get(pk=post_id)
+        post.content = post_body['content']
+        post.save()
+        return JsonResponse()
+
+    
 
 def userprofile(request):
     current_user = User.objects.get(id=request.user.id)
