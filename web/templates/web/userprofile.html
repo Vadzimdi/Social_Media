@@ -26,6 +26,27 @@
 
         }
 
+        function likeHandler(id, list) {
+            const btn = document.getElementById(`${id}`);
+            let counter = btn.innerHTML
+            btn.classList.remove('fa-regular')
+            btn.classList.remove('fa-solid')
+
+            fetch(`/change_like/${id}`)
+            .then(response => response.json())
+            .then(result =>  {
+                if(result.message == "Like removed"){
+                    counter --
+                    btn.classList.add('fa-regular')
+                    document.getElementById(`${id}`).innerHTML = ` ${counter}`
+                } else {
+                    counter ++
+                    btn.classList.add('fa-solid')
+                    document.getElementById(`${id}`).innerHTML = ` ${counter}`
+                }
+                    
+            })
+        }
     </script>
 
     <h2>{{ current_user }}'s Profile</h2>
@@ -56,7 +77,14 @@
             </div>
             <div class="card-body">
                 <h6 class="card-title" id="content_area{{ post.id }}">{{ post.content }}</h6>
-                <a href="#"><i class="fa-regular fa-heart" style="color: #ff2600;"></i></a> {{ post.number_of_likes }}
+                {% if user.is_authenticated %}
+                    {% if post.id in whoyoulike %}
+                        <button class="fa-solid fa-heart" style="color: #ff2600;" onclick="likeHandler({{ post.id }}, {{ whoyoulike }})" id="{{ post.id }}"> {{ post.number_of_likes }}</button>
+                    {% else %}
+                        <button class="fa-regular fa-heart" style="color: #ff2600;" onclick="likeHandler({{ post.id }}, {{ whoyoulike }})" id="{{ post.id }}"> {{ post.number_of_likes }}</button>    
+                    {% endif %}
+
+                {% endif %}
                 {% if current_user == post.user and not_show_edit == None %}
                 <!-- Button trigger modal -->
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#post_model{{ post.id }}">

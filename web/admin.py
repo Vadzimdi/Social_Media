@@ -7,5 +7,6 @@ admin.site.register(User)
 admin.site.register(Post)
 admin.site.register(Comments)
 admin.site.register(Follow)
+admin.site.register(Like)
 
 

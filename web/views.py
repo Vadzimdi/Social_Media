@@ -12,6 +12,24 @@ from django.http import JsonResponse
 from .models import *
 
 
+def change_like(request, post_id):
+    current_post = Post.objects.get(pk=post_id)
+    current_user = User.objects.get(pk=request.user.id)
+    try:
+        s = Like.objects.get(user=current_user, post=current_post)
+        s.delete()
+        current_post.number_of_likes -=1
+        current_post.save()
+        return JsonResponse({"message": "Like removed"})
+    except:
+        new_like = Like(user=current_user, post=current_post)
+        new_like.save()
+        current_post.number_of_likes +=1
+        current_post.save()
+        return JsonResponse({"message": "Like added"})
+    
+    
+
 def index(request):
     allposts = Post.objects.all().order_by('id').reverse()
     current_user = request.user
@@ -33,7 +51,6 @@ def post_edit(request, post_id):
         post.content = post_body['content']
         post.save()
         return JsonResponse()
-
     
 
 def userprofile(request):
@@ -41,11 +58,17 @@ def userprofile(request):
     allposts = Post.objects.filter(user=current_user).order_by('id').reverse()
     user_followers = current_user.number_of_followers
     user_following = current_user.number_of_following
+    whoyoulike = []
+    all_likes = Like.objects.all()
+    for like in all_likes:
+        if like.user == current_user:
+            whoyoulike.append(like.post.id)
 
     # Paginator
     paginator = Paginator(allposts, 10)
     page_namber = request.GET.get('page')
     page_obj = paginator.get_page(page_namber)
+    
 
 
 
@@ -54,7 +77,8 @@ def userprofile(request):
                 "allposts": page_obj,
                 "current_user": current_user,
                 "user_followers": user_followers,
-                "user_following": user_following
+                "user_following": user_following,
+                "whoyoulike": whoyoulike
             })
 
 def profileforuserid(request, post_user_id):
