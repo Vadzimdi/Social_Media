@@ -39,9 +39,17 @@ def index(request):
     page_namber = request.GET.get('page')
     page_obj = paginator.get_page(page_namber)
 
+    whoyoulike = []
+    all_likes = Like.objects.all()
+    for like in all_likes:
+        if like.user == current_user:
+            whoyoulike.append(like.post.id)
+
+
     return render(request, "web/index.html", {
                 "allposts": page_obj,
-                "current_user": current_user
+                "current_user": current_user,
+                "whoyoulike": whoyoulike
             })
 
 def post_edit(request, post_id):
@@ -103,7 +111,13 @@ def profileforuserid(request, post_user_id):
         # Paginator
         paginator = Paginator(allposts, 10)
         page_namber = request.GET.get('page')
-        page_obj = paginator.get_page(page_namber)        
+        page_obj = paginator.get_page(page_namber)
+
+        whoyoulike = []
+        all_likes = Like.objects.all()
+        for like in all_likes:
+            if like.user == current_user1:
+                whoyoulike.append(like.post.id)        
         
         return render(request, "web/userprofile.html", {
                 "allposts": page_obj,
@@ -111,7 +125,8 @@ def profileforuserid(request, post_user_id):
                 "follow": current_following_postuser,
                 "not_show_edit": not_show_edit,
                 "user_followers": user_followers,
-                "user_following": user_following
+                "user_following": user_following,
+                "whoyoulike": whoyoulike
             })
 
 
@@ -120,6 +135,7 @@ def follow(request, post_user_id):
     if request.method == "POST":
         current_user = User.objects.get(id=request.user.id)
         post_user = User.objects.get(id=post_user_id)
+        not_show_edit = True
         allposts = Post.objects.filter(user=post_user).order_by('id').reverse()
         new_follower = Follow(follower=current_user, followed=post_user)
         new_follower.save()
@@ -128,25 +144,14 @@ def follow(request, post_user_id):
         post_user.number_of_followers +=1
         post_user.save()
 
-        # Paginator
-        paginator = Paginator(allposts, 10)
-        page_namber = request.GET.get('page')
-        page_obj = paginator.get_page(page_namber)
-
-        user_followers = post_user.number_of_followers
-        user_following = post_user.number_of_following 
-
-        return render(request, "web/userprofile.html", {
-                "allposts": page_obj,
-                "current_user": post_user,
-                "follow": True,
-                "user_followers": user_followers,
-                "user_following": user_following
-            })
+        return HttpResponseRedirect(reverse('profileforuserid', args=(post_user_id, )))
+        
+      
 
 
 def unfollow(request, post_user_id):
     if request.method == "POST":
+        not_show_edit = True
         current_user = User.objects.get(id=request.user.id)
         post_user = User.objects.get(id=post_user_id)
         allposts = Post.objects.filter(user=post_user).order_by('id').reverse()
@@ -157,21 +162,9 @@ def unfollow(request, post_user_id):
         post_user.number_of_followers -=1
         post_user.save()
 
-        # Paginator
-        paginator = Paginator(allposts, 10)
-        page_namber = request.GET.get('page')
-        page_obj = paginator.get_page(page_namber)
 
-        user_followers = post_user.number_of_followers
-        user_following = post_user.number_of_following 
-
-        return render(request, "web/userprofile.html", {
-                "allposts": page_obj,
-                "current_user": post_user,
-                "follow": False,
-                "user_followers": user_followers,
-                "user_following": user_following
-            })
+        return HttpResponseRedirect(reverse('profileforuserid', args=(post_user_id, )))
+        
 
 def myfollowing(request):
     current_user = request.user

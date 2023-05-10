@@ -28,7 +28,7 @@
 
         function likeHandler(id, list) {
             const btn = document.getElementById(`${id}`);
-            let counter = btn.innerHTML
+            let counter = document.getElementById(`like_number${id}`).innerHTML
             btn.classList.remove('fa-regular')
             btn.classList.remove('fa-solid')
 
@@ -38,11 +38,11 @@
                 if(result.message == "Like removed"){
                     counter --
                     btn.classList.add('fa-regular')
-                    document.getElementById(`${id}`).innerHTML = ` ${counter}`
+                    document.getElementById(`like_number${id}`).innerHTML = ` ${counter}`
                 } else {
                     counter ++
                     btn.classList.add('fa-solid')
-                    document.getElementById(`${id}`).innerHTML = ` ${counter}`
+                    document.getElementById(`like_number${id}`).innerHTML = ` ${counter}`
                 }
                     
             })
@@ -79,15 +79,17 @@
                 <h6 class="card-title" id="content_area{{ post.id }}">{{ post.content }}</h6>
                 {% if user.is_authenticated %}
                     {% if post.id in whoyoulike %}
-                        <button class="fa-solid fa-heart" style="color: #ff2600;" onclick="likeHandler({{ post.id }}, {{ whoyoulike }})" id="{{ post.id }}"> {{ post.number_of_likes }}</button>
+                        <button class="fa-solid fa-heart" style="color: #ff2600;" onclick="likeHandler({{ post.id }}, {{ whoyoulike }})" id="{{ post.id }}"> </button><span id="like_number{{ post.id }}"> {{ post.number_of_likes }}</span> 
                     {% else %}
-                        <button class="fa-regular fa-heart" style="color: #ff2600;" onclick="likeHandler({{ post.id }}, {{ whoyoulike }})" id="{{ post.id }}"> {{ post.number_of_likes }}</button>    
-                    {% endif %}
-
+                        <button class="fa-regular fa-heart" style="color: #ff2600;" onclick="likeHandler({{ post.id }}, {{ whoyoulike }})" id="{{ post.id }}"> </button> <span id="like_number{{ post.id }}">{{ post.number_of_likes }}</span> 
+                            {% endif %}
+                {% else %}
+                    <a href="{% url 'login' %}" class="fa-regular fa-heart" style="color: #ff2600; text-decoration: none;" ></a> <span>{{ post.number_of_likes }}</span>
                 {% endif %}
+                <br>
                 {% if current_user == post.user and not_show_edit == None %}
                 <!-- Button trigger modal -->
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#post_model{{ post.id }}">
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#post_model{{ post.id }}">
                         Edit
                     </button>
                     
@@ -110,8 +112,7 @@
                         </div>
                     </div>
                 {% endif %}   
-                <br>
-                <br>
+                
                 
             </div>
             <div class="card-footer">
