@@ -86,8 +86,10 @@
                 {% else %}
                     <a href="{% url 'login' %}" class="fa-regular fa-heart" style="color: #ff2600; text-decoration: none;" ></a> <span>{{ post.number_of_likes }}</span>
                 {% endif %}
-                <br>
+                
                 {% if current_user == post.user and not_show_edit == None %}
+                <br>
+                <br>
                 <!-- Button trigger modal -->
                     <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#post_model{{ post.id }}">
                         Edit

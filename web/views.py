@@ -28,7 +28,10 @@ def change_like(request, post_id):
         current_post.save()
         return JsonResponse({"message": "Like added"})
     
-    
+def delete_post(request, post_id):
+    current_post = Post.objects.get(pk=post_id)
+    current_post.delete()
+    return HttpResponseRedirect(reverse('index'))
 
 def index(request):
     allposts = Post.objects.all().order_by('id').reverse()
@@ -178,6 +181,12 @@ def myfollowing(request):
             if person.followed == post.user:
                 followingpost.append(post)
 
+    whoyoulike = []
+    all_likes = Like.objects.all()
+    for like in all_likes:
+        if like.user == current_user:
+            whoyoulike.append(like.post.id)            
+
     # Paginator
     paginator = Paginator(followingpost, 10)
     page_namber = request.GET.get('page')
@@ -185,7 +194,8 @@ def myfollowing(request):
 
     return render(request, "web/myfollowing.html", {
             "allposts": page_obj,
-            "current_user": current_user
+            "current_user": current_user,
+            "whoyoulike": whoyoulike
         })
 
 

@@ -3,6 +3,29 @@
 {% load humanize %}
 
 {% block body %}
+<script>
+    function likeHandler(id, list) {
+        const btn = document.getElementById(`${id}`);
+        let counter = document.getElementById(`like_number${id}`).innerHTML
+        btn.classList.remove('fa-regular')
+        btn.classList.remove('fa-solid')
+
+        fetch(`/change_like/${id}`)
+        .then(response => response.json())
+        .then(result =>  {
+            if(result.message == "Like removed"){
+                counter --
+                btn.classList.add('fa-regular')
+                document.getElementById(`like_number${id}`).innerHTML = ` ${counter}`
+            } else {
+                counter ++
+                btn.classList.add('fa-solid')
+                document.getElementById(`like_number${id}`).innerHTML = ` ${counter}`
+            }
+                
+        })
+    }
+</script>
     <h2>Post's which {{ current_user }} follows</h2>
     <br>
     {% for post in allposts %}
@@ -13,7 +36,15 @@
             <div class="card-body">
                 <h6 class="card-title">{{ post.content }}</h6>
                 
-                <a href="#"><i class="fa-regular fa-heart" style="color: #ff2600;"></i></a> {{ post.number_of_likes }}
+                {% if user.is_authenticated %}
+                    {% if post.id in whoyoulike %}
+                        <button class="fa-solid fa-heart" style="color: #ff2600;" onclick="likeHandler({{ post.id }}, {{ whoyoulike }})" id="{{ post.id }}"> </button><span id="like_number{{ post.id }}"> {{ post.number_of_likes }}</span> 
+                    {% else %}
+                        <button class="fa-regular fa-heart" style="color: #ff2600;" onclick="likeHandler({{ post.id }}, {{ whoyoulike }})" id="{{ post.id }}"> </button> <span id="like_number{{ post.id }}">{{ post.number_of_likes }}</span> 
+                            {% endif %}
+                {% else %}
+                    <a href="{% url 'login' %}" class="fa-regular fa-heart" style="color: #ff2600; text-decoration: none;" ></a><span> {{ post.number_of_likes }}</span>
+                {% endif %}
             </div>
             <div class="card-footer">
                 <small>{{ post.creation_date|naturaltime }}</small>
